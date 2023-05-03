@@ -14,6 +14,8 @@ const refs = {
 
 refs.btnStartRef.disabled = true;
 
+let selectedDate = {};
+
 // ******
 const options = {
   enableTime: true,
@@ -21,10 +23,56 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
+    selectedDate = selectedDates[0];
+
+    checkDate();
   },
 };
 // ******
+
+flatpickr(refs.inputDateRef, options);
+
+const nowDate = new Date();
+
+function checkDate() {
+  if (selectedDate > nowDate) {
+    refs.btnStartRef.disabled = false;
+    // notifySuccess();
+    // console.log(convertMs(selectedDate.getTime()));
+  } else {
+    refs.btnStartRef.disabled = true;
+    Notiflix.Notify.failure('Please choose a date in the future', {
+      timeout: 1500,
+    });
+  }
+}
+
+const timer = {
+  isActive: false,
+
+  start() {
+    if (this.isActive) {
+      return;
+    }
+
+    Notiflix.Notify.success('The timer has started counting down', {
+      timeout: 2000,
+    });
+
+    this.isActive = true;
+    setInterval(() => {
+      const startTime = Date.now();
+      let deltaTime = selectedDate - startTime;
+      if (deltaTime > 100) {
+        let timerComponents = convertMs(deltaTime);
+
+        updateTimer(timerComponents);
+      }
+    }, 1000);
+  },
+};
+
+refs.btnStartRef.addEventListener('click', timer.start);
 
 // ******
 function convertMs(ms) {
@@ -46,8 +94,15 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-// console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-// console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-// console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
-
 // ******
+
+function updateTimer({ days, hours, minutes, seconds }) {
+  refs.dataDaysRef.textContent = addZeroOnStart(days);
+  refs.dataHoursRef.textContent = addZeroOnStart(hours);
+  refs.dataMinutesRef.textContent = addZeroOnStart(minutes);
+  refs.dataSecondsRef.textContent = addZeroOnStart(seconds);
+}
+
+function addZeroOnStart(value) {
+  return String(value).padStart(2, '0');
+}

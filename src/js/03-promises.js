@@ -1,6 +1,6 @@
 import Notiflix from 'notiflix';
 Notiflix.Notify.init({
-  position: 'right-bottom',
+  position: 'center-bottom',
 });
 
 const refs = {
